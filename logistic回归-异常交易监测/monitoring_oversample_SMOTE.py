@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import StandardScaler
 from sklearn.cross_validation import train_test_split,KFold, cross_val_score
 from sklearn.linear_model import LogisticRegression
@@ -103,23 +104,6 @@ data = data.drop(['Time','Amount'],axis=1)
 X = data.ix[:, data.columns != 'Class']
 y = data.ix[:, data.columns == 'Class']
 
-# 把正常和异常数据行的索引都取出来
-number_records_fraud = len(data[data.Class == 1])
-fraud_indices = np.array(data[data.Class == 1].index)
-normal_indices = data[data.Class == 0].index
-
-# 下采样，在正常样本里取出和异常样本同样数目的行索引
-random_normal_indices = np.random.choice(normal_indices, number_records_fraud, replace = False)
-random_normal_indices = np.array(random_normal_indices)
-
-# 把索引拼起来
-under_sample_indices = np.concatenate([fraud_indices,random_normal_indices])
-
-# 利用索引拼数据
-under_sample_data = data.iloc[under_sample_indices,:]
-
-X_undersample = under_sample_data.ix[:, under_sample_data.columns != 'Class']
-y_undersample = under_sample_data.ix[:, under_sample_data.columns == 'Class']
 
 # 切分全部数据集，可以测试用
 X_train, X_test, y_train, y_test = train_test_split(X,y,test_size = 0.3, random_state = 0)
@@ -128,17 +112,18 @@ print("Number transactions train dataset: ", len(X_train))
 print("Number transactions test dataset: ", len(X_test))
 print("Total number of transactions: ", len(X_train)+len(X_test))
 
-# 切分下采样数据集
-X_train_undersample, X_test_undersample, y_train_undersample, y_test_undersample = train_test_split(X_undersample
-                                                                                                   ,y_undersample
-                                                                                                   ,test_size = 0.3
-                                                                                                   ,random_state = 0)
-best_c = Kfold_scores(X_train_undersample,y_train_undersample)
+
+oversampler=SMOTE(random_state=0) #用imblearn库里的过采样SMOTE函数，生成均衡的样本
+os_features,os_labels=oversampler.fit_sample(X_train,y_train)
+os_features = pd.DataFrame(os_features)
+os_labels = pd.DataFrame(os_labels)
+
+best_c = Kfold_scores(os_features,os_labels)
 
 
 #在整个数据集上做下测试
-lr = LogisticRegression(C = best_c, penalty = 'l1')
-lr.fit(X_train_undersample,y_train_undersample.values.ravel())
+lr = LogisticRegression(C = 0.01, penalty = 'l1')
+lr.fit(os_features,os_labels.values.ravel())
 y_pred = lr.predict(X_test.values)
 
 # Compute confusion matrix
