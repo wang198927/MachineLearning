@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import StandardScaler
-from sklearn.cross_validation import train_test_split,KFold, cross_val_score
+from sklearn.cross_validation import train_test_split,KFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import confusion_matrix,recall_score,accuracy_score
 import itertools
