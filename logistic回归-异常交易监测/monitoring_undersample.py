@@ -141,6 +141,7 @@ lr = LogisticRegression(C = best_c, penalty = 'l1')
 lr.fit(X_train_undersample,y_train_undersample.values.ravel())
 y_pred = lr.predict(X_test.values)
 
+
 # Compute confusion matrix
 cnf_matrix = confusion_matrix(y_test,y_pred)
 np.set_printoptions(precision=2)
