@@ -2,10 +2,10 @@ from sklearn.datasets import fetch_lfw_people
 from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
-from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split,GridSearchCV
 from sklearn.metrics import classification_report
 from sklearn.metrics import confusion_matrix
+import seaborn as sns
 import matplotlib.pyplot as plt
 faces = fetch_lfw_people(min_faces_per_person=60)
 print(faces.target_names)
@@ -34,6 +34,9 @@ print(classification_report(ytest, y_predict,
                             target_names=faces.target_names))
 
 mat = confusion_matrix(ytest, y_predict)
+sns.heatmap(mat.T, square=True, annot=True, fmt='d', cbar=False,
+            xticklabels=faces.target_names,
+            yticklabels=faces.target_names)
 plt.xlabel('true label')
 plt.ylabel('predicted label')
 plt.savefig('confusion_matrix')
